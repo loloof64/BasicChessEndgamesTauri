@@ -1,17 +1,17 @@
 <script setup>
-import { ref } from 'vue'
+import { useStore } from '../../stores/game';
 
 defineProps({
   msg: String
 })
 
-const count = ref(0)
+const store = useStore();
 </script>
 
 <template>
   <h1>{{ msg }}</h1>
 
-  <button type="button" @click="count++">count is: {{ count }}</button>
+  <p>Position is {{ store.positionFen }}</p>
 </template>
 
 <style scoped>
