@@ -41,6 +41,13 @@ function kingText(white) {
         1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
         1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
         1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
+
+        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
+        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
+        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
+        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
+        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
+        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
     </div>
 </template>
 
@@ -60,5 +67,8 @@ function kingText(white) {
     flex-direction: row;
     justify-content: flex-start;
     align-items: flex-start;
+    text-align: start;
+    padding: 0.5rem;
+    overflow: scroll;
 }
 </style>
