@@ -22,7 +22,7 @@ function startNewGame() {
   >
   </loloof64-chessboard>
   <p>
-    <button @click="startNewGame()">New game</button>
+    <ui-button raised @click="startNewGame()">New game</ui-button>
   </p>
   <p>Start position is <b>{{ gameStore.startPosition }}</b></p>
 </template>
