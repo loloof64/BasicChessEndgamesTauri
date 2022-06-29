@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useStore } from '../../stores/game';
 
 defineProps({
   
-})
+});
+
+const { t } = useI18n();
 
 const gameStore = useStore();
 const board = ref();
@@ -14,33 +17,35 @@ const snackBarMessage = ref('');
 function startNewGame() {
   gameStore.resetToDefaultGame();
   board.value.newGame(gameStore.startPosition);
-  snackBarMessage.value = "New game started."
+  snackBarMessage.value = t('pages.game.status.new-game');
   snackBarOpen.value = true;
 }
 
 function handleCheckmate({detail: {whiteTurnBeforeMove}}) {
-  const side = whiteTurnBeforeMove ? 'White' : 'Black';
-  snackBarMessage.value = side + ' has won by checkmate.';
+  const side = whiteTurnBeforeMove ? t('chess.white') : t('chess.black');
+  let message = t('pages.game.status.checkmate', {side});
+  message = message.charAt(0).toUpperCase() + message.substring(1);
+  snackBarMessage.value = message;
   snackBarOpen.value = true;
 }
 
 function handleStalemate() {
-  snackBarMessage.value = 'Draw by stalemate.';
+  snackBarMessage.value = t('pages.game.status.stalemate');
   snackBarOpen.value = true;
 }
 
 function handleThreeFoldRepetition() {
-  snackBarMessage.value = 'Draw by 3-fold repetition.';
+  snackBarMessage.value = t('pages.game.status.three-fold-repetition');
   snackBarOpen.value = true;
 }
 
 function handleMissingMaterialDraw() {
-  snackBarMessage.value = 'Draw by missing material.';
+  snackBarMessage.value = t('pages.game.status.missing-material');
   snackBarOpen.value = true;
 }
 
 function handleFiftyMovesDraw() {
-  snackBarMessage.value = 'Draw by the 50-moves rule.'
+  snackBarMessage.value = t('pages.game.status.fifty-moves')
   snackBarOpen.value = true;
 }
 </script>
@@ -57,7 +62,7 @@ function handleFiftyMovesDraw() {
   >
   </loloof64-chessboard>
   <p>
-    <ui-button raised @click="startNewGame()">New game</ui-button>
+    <ui-button raised @click="startNewGame()">{{t('pages.game.buttons.new-game')}}</ui-button>
   </p>
   <ui-snackbar
     v-model="snackBarOpen"
