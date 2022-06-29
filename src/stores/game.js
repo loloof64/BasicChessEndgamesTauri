@@ -1,15 +1,18 @@
 import { defineStore } from "pinia";
-import { DEFAULT_FEN } from "../constants";
+import { DEFAULT_FEN, EMPTY_FEN } from "../constants";
 
 export const useStore = defineStore('game', {
     state: () => {
         return {
-            positionFen: DEFAULT_FEN,
+            startPosition: EMPTY_FEN,
         }
     },
      actions: {
         resetToDefaultGame() {
-            this.positionFen = DEFAULT_FEN;
+            this.startPosition = DEFAULT_FEN;
+        },
+        startNewGame(customStartPosition) {
+            this.startPosition = customStartPosition;
         }
      }
 });

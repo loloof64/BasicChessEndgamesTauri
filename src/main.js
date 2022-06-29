@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import App from './App.vue'
 
 import GamePage from './components/pages/GamePage.vue';
+import ChessBoard from '@loloof64/chessboard-component/dist';
 
 const routes = [
     { path: '/', name: 'game', component: GamePage },

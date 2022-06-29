@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.18.6.tgz#845338edecad65ebffef058d3be851f1d28a63bc"
   integrity sha512-uQVSa9jJUe/G/304lXspfWVpKpK4euFLgGiMQFOCpM/bgcAdeoHwi/OQz23O9GK2osz26ZiXRRV9aV+Yl1O8tw==
 
+"@loloof64/chessboard-component@^0.25.0":
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/@loloof64/chessboard-component/-/chessboard-component-0.25.0.tgz#6c906de1d5ebd846bd2cf7a5cb4354a469b8c6a2"
+  integrity sha512-NnalDHSCYBvmOwBKYoaaxayP4M6wv6RCcueIhq1EsJh7zpkaNZC2edXZYwvj5KUqp+MeLm+JFTe0EoWvfUVSbA==
+
 "@tauri-apps/api@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@tauri-apps/api/-/api-1.0.1.tgz#f516cf3b83139312141123c08f1d75260274da50"
