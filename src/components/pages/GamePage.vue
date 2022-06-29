@@ -3,9 +3,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from '../../stores/game';
 
-defineProps({
-  
-});
+import SimpleChessHistoryVue from '../elements/SimpleChessHistory.vue';
 
 const { t } = useI18n();
 
@@ -51,7 +49,11 @@ function handleFiftyMovesDraw() {
 </script>
 
 <template>
-  <loloof64-chessboard
+  <p>
+    <ui-button raised @click="startNewGame()">{{t('pages.game.buttons.new-game')}}</ui-button>
+  </p>
+  <div id="mainZone">
+    <loloof64-chessboard
     ref="board"
     :size="300"
     @checkmate="handleCheckmate"
@@ -59,11 +61,10 @@ function handleFiftyMovesDraw() {
     @perpetual-draw="handleThreeFoldRepetition"
     @missing-material-draw="handleMissingMaterialDraw"
     @fifty-moves-draw="handleFiftyMovesDraw"
-  >
-  </loloof64-chessboard>
-  <p>
-    <ui-button raised @click="startNewGame()">{{t('pages.game.buttons.new-game')}}</ui-button>
-  </p>
+    >
+    </loloof64-chessboard>
+    <simple-chess-history-vue />
+  </div>
   <ui-snackbar
     v-model="snackBarOpen"
     :timeout-ms="4000"
@@ -73,4 +74,11 @@ function handleFiftyMovesDraw() {
 </template>
 
 <style scoped>
+#mainZone {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-bottom: 50px;
+}
 </style>
