@@ -1,9 +1,8 @@
 <script setup>
-import GamePage from './components/pages/GamePage.vue'
 </script>
 
 <template>
-  <GamePage msg="Simple counter" />
+  <router-view></router-view>
 </template>
 
 <style>
