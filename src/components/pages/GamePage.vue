@@ -14,8 +14,8 @@ const snackBarOpen = ref(false);
 const snackBarMessage = ref('');
 
 function startNewGame() {
-  gameStore.resetToDefaultGame();
-  history.value.reset();
+  gameStore.startNewGame('rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2');
+  history.value.reset(gameStore.startMoveNumber, gameStore.startsAsWhite);
   board.value.newGame(gameStore.startPosition);
   snackBarMessage.value = t('pages.game.status.new-game');
   snackBarOpen.value = true;
@@ -51,9 +51,14 @@ function handleFiftyMovesDraw() {
 
 function handleMoveDone({detail: {moveObject: {moveNumber, whiteTurn, moveFan, 
 moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
-  history.value.addMove({
+  history.value.addNode({
     fan: moveFan,
   });
+  if (whiteTurn === false) {
+    history.value.addNode({
+      number: `${parseInt(moveNumber)+1}.`
+    });
+  }
 }
 </script>
 
