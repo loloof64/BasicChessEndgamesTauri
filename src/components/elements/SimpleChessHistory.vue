@@ -1,4 +1,5 @@
 <script setup>
+import {ref} from 'vue';
 
 defineProps({
   width: {
@@ -11,43 +12,39 @@ defineProps({
   }
 });
 
-function knightText(white) {
-    return white ? '\u2658' : '\u265e';
+const nodes = ref([]);
+
+/**
+ * Clears history
+ */
+function reset() {
+  nodes.value = [];
 }
 
-function bishopText(white) {
-    return white ? '\u2657' : '\u265d';
+/**
+ * Add a move to history. You give an object with
+ * - number: String? (can be undefined) - the move number text
+ * - fan: String - the move text without the number
+ * - fen: String? (can be undefined) - the position value resulting from move in Forstyh-Edwards Notation
+ *  
+ */
+function addMove(parameters) {
+  const  {number, fan, fen} = parameters;
+  nodes.value = [...nodes.value, {number, fan, fen}];
 }
 
-function rookText(white) {
-    return white ? '\u2656' : '\u265c';
-}
-
-function queenText(white) {
-    return white ? '\u2655' : '\u265b';
-}
-
-function kingText(white) {
-    return white ? '\u2654' : '\u265a';
-}
+defineExpose({
+  reset,
+  addMove,
+});
 
 </script>
 
 <template>
     <div class="root">
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
-        1. e4 e5 2.{{knightText(false)}}c6 {{bishopText(true)}}c5
+        <span v-for="(node, index) in nodes" :key="index">
+          {{ `${node.number  ?? ''}&nbsp;`}}{{ `${node.fan}&nbsp;` }}
+        </span>
     </div>
 </template>
 
@@ -58,17 +55,20 @@ function kingText(white) {
 }
 
 .root {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    box-sizing: border-box;
     background-color: azure;
     width: v-bind(width);
     height: v-bind(height);
     font-family: 'Free Serif';
     font-size: xx-large;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-start;
-    text-align: start;
     padding: 0.5rem;
-    overflow: scroll;
+    text-align: start;
+    overflow-x: visible;
+    overflow-y: scroll;
 }
 </style>

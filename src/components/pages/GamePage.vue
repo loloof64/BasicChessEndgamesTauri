@@ -9,11 +9,13 @@ const { t } = useI18n();
 
 const gameStore = useStore();
 const board = ref();
+const history = ref();
 const snackBarOpen = ref(false);
 const snackBarMessage = ref('');
 
 function startNewGame() {
   gameStore.resetToDefaultGame();
+  history.value.reset();
   board.value.newGame(gameStore.startPosition);
   snackBarMessage.value = t('pages.game.status.new-game');
   snackBarOpen.value = true;
@@ -46,6 +48,13 @@ function handleFiftyMovesDraw() {
   snackBarMessage.value = t('pages.game.status.fifty-moves')
   snackBarOpen.value = true;
 }
+
+function handleMoveDone({detail: {moveObject: {moveNumber, whiteTurn, moveFan, 
+moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
+  history.value.addMove({
+    fan: moveFan,
+  });
+}
 </script>
 
 <template>
@@ -61,9 +70,12 @@ function handleFiftyMovesDraw() {
     @perpetual-draw="handleThreeFoldRepetition"
     @missing-material-draw="handleMissingMaterialDraw"
     @fifty-moves-draw="handleFiftyMovesDraw"
+    @move-done="handleMoveDone"
     >
     </loloof64-chessboard>
-    <simple-chess-history-vue />
+    <simple-chess-history-vue
+      ref="history"
+    />
   </div>
   <ui-snackbar
     v-model="snackBarOpen"
