@@ -35,6 +35,7 @@ const selectedNodeIndex = ref(-1);
  */
 function reset(startMoveNumber, startsAsWhite) {
   const moveNumberText = `${startMoveNumber}.${startsAsWhite ? '' : '..'}`;
+  selectedNodeIndex.value = -1;
   nodes.value = [{number: moveNumberText}];
 }
 
