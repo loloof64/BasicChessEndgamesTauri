@@ -125,7 +125,7 @@ defineExpose({
   width: v-bind(width);
   height: v-bind(height);
   font-family: 'Free Serif';
-  font-size: 40px;
+  font-size: xx-large;
   padding: 0.5rem;
   text-align: start;
   overflow-x: visible;
