@@ -15,22 +15,23 @@ defineProps({
 /**
  * requestNodeSelected notifies that a move node has been clicked.
  * You give it an object with those params :
- * @param nodeIndex: Number - index of node in history component
- * @param fen: String - the requested position in Forsyhth-Edwards Notation
- * @param fromFileIndex: Number - the start file index of matching move.
- * @param fromRankIndex: Number - the start rank index of matching move.
- * @param toFileIndex: Number - the end file index of matching move.
- * @param toRankIndex: Number - the end rank index of matching move.
+ * @param {Number} nodeIndex - index of node in history component
+ * @param {String} fen - the requested position in Forsyhth-Edwards Notation
+ * @param {Number} fromFileIndex - the start file index of matching move.
+ * @param {Number} fromRankIndex - the start rank index of matching move.
+ * @param {Number} toFileIndex - the end file index of matching move.
+ * @param {Number} toRankIndex - the end rank index of matching move.
  */
 const emit = defineEmits(['requestNodeSelected']);
 
 const nodes = ref([]);
 const root = ref();
+const selectedNodeIndex = ref(-1);
 
 /**
  * Clears history.
- * @param startMoveNumber - Number : first move number of the game.
- * @param startsAsWhite - Boolean : true if white starts the game, false otherwise.
+ * @param {Number} startMoveNumber : first move number of the game.
+ * @param {Boolean} startsAsWhite : true if white starts the game, false otherwise.
  */
 function reset(startMoveNumber, startsAsWhite) {
   const moveNumberText = `${startMoveNumber}.${startsAsWhite ? '' : '..'}`;
@@ -61,6 +62,14 @@ function scrollToLastElement() {
   lastChild.scrollIntoView();
 }
 
+/**
+ * Sets the selected node, just in order to highlight it.
+ * @param {Number} nodeIndex 
+ */
+function setSelectedNode(nodeIndex) {
+  selectedNodeIndex.value = nodeIndex;
+}
+
 function handleClick(nodeIndex) {
   const {fen, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex} = nodes.value[nodeIndex];
   if (!fen) return;
@@ -75,9 +84,14 @@ function handleClick(nodeIndex) {
   });
 }
 
+function isSelectedNode(nodeIndex) {
+  return nodeIndex === selectedNodeIndex.value;
+}
+
 defineExpose({
   reset,
   addNode,
+  setSelectedNode,
   scrollToLastElement,
 });
 
@@ -85,7 +99,9 @@ defineExpose({
 
 <template>
     <div class="root" ref="root">
-        <span v-for="(node, index) in nodes" :key="index" @click="() => handleClick(index)">
+        <span v-for="(node, index) in nodes" :key="index" @click="() => handleClick(index)"
+          :class="{selected: isSelectedNode(index)}"
+        >
           {{ `${node.number  ?? ''}&nbsp;`}}{{ `${node.fan ?? ''}&nbsp;` }}
         </span>
     </div>
@@ -113,5 +129,10 @@ defineExpose({
   text-align: start;
   overflow-x: visible;
   overflow-y: scroll;
+}
+
+.selected {
+  background-color: yellowgreen;
+  color: blue;
 }
 </style>

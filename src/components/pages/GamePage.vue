@@ -82,13 +82,16 @@ function handleHistoryNodeSelectionRequest({
   const gameInProgress = board.value.gameIsInProgress();
   if (gameInProgress) return;
 
-  board.value.setPositionAndLastMove({
+  const updateSuccess = board.value.setPositionAndLastMove({
     positionFen: fen,
     fromFileIndex,
     fromRankIndex,
     toFileIndex,
     toRankIndex,
-  })
+  });
+  if (updateSuccess) {
+    history.value.setSelectedNode(nodeIndex);
+  }
 }
 </script>
 
