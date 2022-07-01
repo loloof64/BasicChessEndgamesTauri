@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from '../../stores/game';
+import { promiseTimeout } from '@vueuse/core';
 
 import SimpleChessHistoryVue from '../elements/SimpleChessHistory.vue';
 
@@ -14,7 +15,7 @@ const snackBarOpen = ref(false);
 const snackBarMessage = ref('');
 
 function startNewGame() {
-  gameStore.startNewGame('rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2');
+  gameStore.resetToDefaultGame();
   history.value.reset(gameStore.startMoveNumber, gameStore.startsAsWhite);
   board.value.newGame(gameStore.startPosition);
   snackBarMessage.value = t('pages.game.status.new-game');
@@ -49,7 +50,7 @@ function handleFiftyMovesDraw() {
   snackBarOpen.value = true;
 }
 
-function handleMoveDone({detail: {moveObject: {moveNumber, whiteTurn, moveFan, 
+async function handleMoveDone({detail: {moveObject: {moveNumber, whiteTurn, moveFan, 
 moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
   history.value.addNode({
     fan: moveFan,
@@ -59,6 +60,9 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
       number: `${parseInt(moveNumber)+1}.`
     });
   }
+
+  await promiseTimeout(10);
+  history.value.scrollToLastElement();
 }
 </script>
 

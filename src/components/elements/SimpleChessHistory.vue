@@ -13,6 +13,7 @@ defineProps({
 });
 
 const nodes = ref([]);
+const root = ref();
 
 /**
  * Clears history.
@@ -36,15 +37,24 @@ function addNode(parameters) {
   nodes.value = [...nodes.value, {number, fan, fen}];
 }
 
+/**
+ * Scroll, so that the last child is visible.
+ */
+function scrollToLastElement() {
+  const lastChild = root.value.lastElementChild;
+  lastChild.scrollIntoView();
+}
+
 defineExpose({
   reset,
   addNode,
+  scrollToLastElement,
 });
 
 </script>
 
 <template>
-    <div class="root">
+    <div class="root" ref="root">
         <span v-for="(node, index) in nodes" :key="index">
           {{ `${node.number  ?? ''}&nbsp;`}}{{ `${node.fan ?? ''}&nbsp;` }}
         </span>
@@ -68,7 +78,7 @@ defineExpose({
   width: v-bind(width);
   height: v-bind(height);
   font-family: 'Free Serif';
-  font-size: x-large;
+  font-size: 40px;
   padding: 0.5rem;
   text-align: start;
   overflow-x: visible;
