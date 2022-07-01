@@ -22,30 +22,40 @@ function startNewGame() {
   snackBarOpen.value = true;
 }
 
-function handleCheckmate({detail: {whiteTurnBeforeMove}}) {
+async function handleCheckmate({detail: {whiteTurnBeforeMove}}) {
+  await promiseTimeout(10);
   const side = whiteTurnBeforeMove ? t('chess.white') : t('chess.black');
+  history.value.selectLastElement();
   let message = t('pages.game.status.checkmate', {side});
   message = message.charAt(0).toUpperCase() + message.substring(1);
   snackBarMessage.value = message;
   snackBarOpen.value = true;
 }
 
-function handleStalemate() {
+async function handleStalemate() {
+  await promiseTimeout(10);
+  history.value.selectLastElement();
   snackBarMessage.value = t('pages.game.status.stalemate');
   snackBarOpen.value = true;
 }
 
-function handleThreeFoldRepetition() {
+async function handleThreeFoldRepetition() {
+  await promiseTimeout(10);
+  history.value.selectLastElement();
   snackBarMessage.value = t('pages.game.status.three-fold-repetition');
   snackBarOpen.value = true;
 }
 
-function handleMissingMaterialDraw() {
+async function handleMissingMaterialDraw() {
+  await promiseTimeout(10);
+  history.value.selectLastElement();
   snackBarMessage.value = t('pages.game.status.missing-material');
   snackBarOpen.value = true;
 }
 
-function handleFiftyMovesDraw() {
+async function handleFiftyMovesDraw() {
+  await promiseTimeout(10);
+  history.value.selectLastElement();
   snackBarMessage.value = t('pages.game.status.fifty-moves')
   snackBarOpen.value = true;
 }
@@ -61,7 +71,9 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
     toRankIndex,
     fen: positionFen,
   });
-  if (whiteTurn === false) {
+  const blackTurn = whiteTurn == false;
+  const gameInProgress = board.value.gameIsInProgress();
+  if (blackTurn && gameInProgress) {
     history.value.addNode({
       number: `${parseInt(moveNumber)+1}.`
     });

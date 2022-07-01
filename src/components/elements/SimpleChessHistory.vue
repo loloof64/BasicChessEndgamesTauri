@@ -71,6 +71,16 @@ function setSelectedNode(nodeIndex) {
   selectedNodeIndex.value = nodeIndex;
 }
 
+/**
+ * Selects the last node :
+ * - scrolls to it
+ * - highlights it
+ */
+function selectLastElement() {
+  selectedNodeIndex.value = nodes.value.length - 1;
+  scrollToLastElement();
+}
+
 function handleClick(nodeIndex) {
   const {fen, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex} = nodes.value[nodeIndex];
   if (!fen) return;
@@ -94,6 +104,7 @@ defineExpose({
   addNode,
   setSelectedNode,
   scrollToLastElement,
+  selectLastElement,
 });
 
 </script>
