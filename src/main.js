@@ -4,6 +4,10 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import { createI18n } from 'vue-i18n'
 import App from './App.vue'
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faFastBackward, faFastForward, faBackwardStep, faForwardStep } from '@fortawesome/free-solid-svg-icons'
+
 
 import BalmUI from 'balm-ui'; // Official Google Material Components
 import BalmUIPlus from 'balm-ui-plus'; // BalmJS Team Material Components
@@ -38,9 +42,11 @@ const i18n = createI18n({
     messages: translations,
 })
 
+library.add(faFastBackward, faFastForward, faBackwardStep, faForwardStep);
 
 const app = createApp(App)
 
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router)
 app.use(pinia)
 app.use(i18n)

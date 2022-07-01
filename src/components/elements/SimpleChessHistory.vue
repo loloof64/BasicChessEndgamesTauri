@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 defineProps({
   width: {
@@ -22,11 +22,12 @@ defineProps({
  * @param {Number} toFileIndex - the end file index of matching move.
  * @param {Number} toRankIndex - the end rank index of matching move.
  */
-const emit = defineEmits(['requestNodeSelected']);
+const emit = defineEmits(['requestNodeSelected', 'requestStartPosition']);
 
 const nodes = ref([]);
-const root = ref();
+const mainContent = ref();
 const selectedNodeIndex = ref(-1);
+const navigationMode = ref(false);
 
 /**
  * Clears history.
@@ -35,6 +36,7 @@ const selectedNodeIndex = ref(-1);
  */
 function reset(startMoveNumber, startsAsWhite) {
   const moveNumberText = `${startMoveNumber}.${startsAsWhite ? '' : '..'}`;
+  navigationMode.value = false;
   selectedNodeIndex.value = -1;
   nodes.value = [{number: moveNumberText}];
 }
@@ -59,7 +61,7 @@ function addNode(parameters) {
  * Scroll, so that the last child is visible.
  */
 function scrollToLastElement() {
-  const lastChild = root.value.lastElementChild;
+  const lastChild = mainContent.value.lastElementChild;
   lastChild.scrollIntoView();
 }
 
@@ -68,6 +70,8 @@ function scrollToLastElement() {
  * @param {Number} nodeIndex 
  */
 function setSelectedNode(nodeIndex) {
+  // Needing to be sure that clicking on next move will point to first move node.
+  if (nodeIndex < 0) nodeIndex = -1;
   selectedNodeIndex.value = nodeIndex;
 }
 
@@ -81,8 +85,20 @@ function selectLastElement() {
   scrollToLastElement();
 }
 
+/**
+ * Activates navigation mode :
+ * - shows toolbar
+ * - select last move
+ */
+function activateNavigationMode() {
+  navigationMode.value = true;
+  selectLastElement();
+}
+
 function handleClick(nodeIndex) {
   const {fen, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex} = nodes.value[nodeIndex];
+
+  if (!navigationMode.value) return;
   if (!fen) return;
 
   emit('requestNodeSelected', {
@@ -99,23 +115,143 @@ function isSelectedNode(nodeIndex) {
   return nodeIndex === selectedNodeIndex.value;
 }
 
+function scrollToTop() {
+  mainContent.value.scroll(0, 0);
+}
+
+function requestStartPositionOnBoard() {
+  if (!navigationMode.value) return;
+  emit('requestStartPosition');
+}
+
+function selectStartPosition() {
+  if (!navigationMode.value) return;
+  requestStartPositionOnBoard();
+  scrollToTop();
+}
+
+function selectPreviousNode() {
+  if (!navigationMode.value) return;
+  for (selectedNodeIndex.value -= 1; selectedNodeIndex.value >= 0; selectedNodeIndex.value--) {
+    const currentNode = nodes.value[selectedNodeIndex.value];
+    const isAMoveNode = currentNode.fen;
+    if (isAMoveNode) break;
+  }
+
+  if (selectedNodeIndex.value >= 0) {
+    const node = nodes.value[selectedNodeIndex.value];
+    const {fen,
+      fromFileIndex,
+      fromRankIndex,
+      toFileIndex,
+      toRankIndex} = node;
+    emit('requestNodeSelected', {
+      nodeIndex: selectedNodeIndex.value,
+      fen,
+      fromFileIndex,
+      fromRankIndex,
+      toFileIndex,
+      toRankIndex,
+    });
+  }
+  else {    
+    selectStartPosition();
+  }
+}
+
+function selectNextNode() {
+  if (!navigationMode.value) return;
+  for (selectedNodeIndex.value += 1; selectedNodeIndex.value < nodes.value.length; selectedNodeIndex.value++) {
+    const currentNode = nodes.value[selectedNodeIndex.value];
+    const isAMoveNode = currentNode.fen;
+    if (isAMoveNode) break;
+  }
+
+  const node = nodes.value[selectedNodeIndex.value];
+  if (!(node?.fen)) {
+    // cancelling progress in history if we point to a number node
+    selectPreviousNode();
+  }
+
+
+  const {fen,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex} = node;
+  emit('requestNodeSelected', {
+    nodeIndex: selectedNodeIndex.value,
+    fen,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex,
+  });
+}
+
+function selectLastNode() {
+  if (!navigationMode.value) return;
+  for (selectedNodeIndex.value += 1; selectedNodeIndex.value < nodes.value.length; selectedNodeIndex.value++) {
+  }
+
+  const node = nodes.value[selectedNodeIndex.value];
+  if (!(node?.fen)) {
+    // cancelling progress in history if we point to a number node
+    selectPreviousNode();
+  }
+
+
+  const {fen,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex} = node;
+  emit('requestNodeSelected', {
+    nodeIndex: selectedNodeIndex.value,
+    fen,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex,
+  });
+}
+
 defineExpose({
   reset,
   addNode,
   setSelectedNode,
   scrollToLastElement,
   selectLastElement,
+  activateNavigationMode,
 });
 
 </script>
 
 <template>
-    <div class="root" ref="root">
-        <span v-for="(node, index) in nodes" :key="index" @click="() => handleClick(index)"
-          :class="{selected: isSelectedNode(index)}"
-        >
-          {{ `${node.number  ?? ''}&nbsp;`}}{{ `${node.fan ?? ''}&nbsp;` }}
-        </span>
+    <div class="root">
+        <div class="toolbar" v-if="navigationMode">
+          <button
+            @click="selectStartPosition"
+            class="toolbar__button"
+          ><font-awesome-icon icon="fa-solid fa-backward-fast" /></button>
+          <button
+            @click="selectPreviousNode"
+            class="toolbar__button"
+          ><font-awesome-icon icon="fa-solid fa-backward-step" /></button>
+          <button
+            @click="selectNextNode"
+            class="toolbar__button"
+          ><font-awesome-icon icon="fa-solid fa-forward-step" /></button>
+          <button
+            @click="selectLastNode"
+            class="toolbar__button"
+          ><font-awesome-icon icon="fa-solid fa-forward-fast" /></button>
+        </div>
+        <div class="main-content" ref="mainContent">
+            <span v-for="(node, index) in nodes" :key="index" :class="{selected: isSelectedNode(index)}" @click="handleClick(index)">
+              {{ `${node.number  ?? ''}&nbsp;`}}{{ `${node.fan ?? ''}&nbsp;` }}
+            </span>
+        </div>
     </div>
 </template>
 
@@ -126,15 +262,38 @@ defineExpose({
 }
 
 .root {
+  width: v-bind(width);
+  height: v-bind(height);
   display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.toolbar {
+  background-color: olive;
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.toolbar__button {
+  font-size: smaller;
+}
+
+.main-content {
+  width: 100%;
+  display: flex;
+  flex-grow: 7;
   flex-direction: row;
   justify-content: flex-start;
   flex-wrap: wrap;
   align-content: flex-start;
   box-sizing: border-box;
   background-color: azure;
-  width: v-bind(width);
-  height: v-bind(height);
   font-family: 'Free Serif';
   font-size: xx-large;
   padding: 0.5rem;

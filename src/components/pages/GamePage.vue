@@ -25,7 +25,7 @@ function startNewGame() {
 async function handleCheckmate({detail: {whiteTurnBeforeMove}}) {
   await promiseTimeout(10);
   const side = whiteTurnBeforeMove ? t('chess.white') : t('chess.black');
-  history.value.selectLastElement();
+  history.value.activateNavigationMode();
   let message = t('pages.game.status.checkmate', {side});
   message = message.charAt(0).toUpperCase() + message.substring(1);
   snackBarMessage.value = message;
@@ -34,28 +34,28 @@ async function handleCheckmate({detail: {whiteTurnBeforeMove}}) {
 
 async function handleStalemate() {
   await promiseTimeout(10);
-  history.value.selectLastElement();
+  history.value.activateNavigationMode();
   snackBarMessage.value = t('pages.game.status.stalemate');
   snackBarOpen.value = true;
 }
 
 async function handleThreeFoldRepetition() {
   await promiseTimeout(10);
-  history.value.selectLastElement();
+  history.value.activateNavigationMode();
   snackBarMessage.value = t('pages.game.status.three-fold-repetition');
   snackBarOpen.value = true;
 }
 
 async function handleMissingMaterialDraw() {
   await promiseTimeout(10);
-  history.value.selectLastElement();
+  history.value.activateNavigationMode();
   snackBarMessage.value = t('pages.game.status.missing-material');
   snackBarOpen.value = true;
 }
 
 async function handleFiftyMovesDraw() {
   await promiseTimeout(10);
-  history.value.selectLastElement();
+  history.value.activateNavigationMode();
   snackBarMessage.value = t('pages.game.status.fifty-moves')
   snackBarOpen.value = true;
 }
@@ -101,8 +101,25 @@ function handleHistoryNodeSelectionRequest({
     toFileIndex,
     toRankIndex,
   });
+
   if (updateSuccess) {
     history.value.setSelectedNode(nodeIndex);
+  }
+}
+
+function handleStartPositionRequested() {
+  const gameInProgress = board.value.gameIsInProgress();
+  if (gameInProgress) return;
+
+  const updateSuccess = board.value.setPositionAndLastMove({
+    positionFen: gameStore.startPosition,
+    fromFileIndex: undefined,
+    fromRankIndex: undefined,
+    toFileIndex: undefined,
+    toRankIndex: undefined,
+  });
+  if (updateSuccess) {
+    history.value.setSelectedNode(-1);
   }
 }
 </script>
@@ -126,6 +143,7 @@ function handleHistoryNodeSelectionRequest({
     <simple-chess-history-vue
       ref="history"
       @requestNodeSelected="handleHistoryNodeSelectionRequest"
+      @requestStartPosition="handleStartPositionRequested"
     />
   </div>
   <ui-snackbar
