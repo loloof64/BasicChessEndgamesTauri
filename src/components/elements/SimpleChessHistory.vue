@@ -61,18 +61,24 @@ function addNode(parameters) {
  * Scroll, so that the last child is visible.
  */
 function scrollToLastElement() {
-  const lastChild = mainContent.value.lastElementChild;
+  const lastChild = document.querySelector('.main-content span:last-child');
   lastChild.scrollIntoView();
 }
 
 /**
- * Sets the selected node, just in order to highlight it.
+ * Sets the selected node :
+ * - highlight it
+ * - scrolls to it
  * @param {Number} nodeIndex 
  */
 function setSelectedNode(nodeIndex) {
   // Needing to be sure that clicking on next move will point to first move node.
   if (nodeIndex < 0) nodeIndex = -1;
   selectedNodeIndex.value = nodeIndex;
+  if (nodeIndex > 0) {
+    const targetChild = document.querySelector(`.main-content span:nth-child(${nodeIndex})`);
+    targetChild.scrollIntoView();
+  }
 }
 
 /**
