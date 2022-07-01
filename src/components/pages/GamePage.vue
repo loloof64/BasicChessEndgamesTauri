@@ -52,8 +52,14 @@ function handleFiftyMovesDraw() {
 
 async function handleMoveDone({detail: {moveObject: {moveNumber, whiteTurn, moveFan, 
 moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
+  const positionFen = board.value.getCurrentPosition();
   history.value.addNode({
     fan: moveFan,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex,
+    fen: positionFen,
   });
   if (whiteTurn === false) {
     history.value.addNode({
@@ -63,6 +69,26 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
 
   await promiseTimeout(10);
   history.value.scrollToLastElement();
+}
+
+function handleHistoryNodeSelectionRequest({
+    nodeIndex,
+    fen,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex,
+}) {
+  const gameInProgress = board.value.gameIsInProgress();
+  if (gameInProgress) return;
+
+  board.value.setPositionAndLastMove({
+    positionFen: fen,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex,
+  })
 }
 </script>
 
@@ -84,6 +110,7 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
     </loloof64-chessboard>
     <simple-chess-history-vue
       ref="history"
+      @requestNodeSelected="handleHistoryNodeSelectionRequest"
     />
   </div>
   <ui-snackbar

@@ -1,5 +1,5 @@
 <script setup>
-import {ref} from 'vue';
+import { ref } from 'vue';
 
 defineProps({
   width: {
@@ -11,6 +11,18 @@ defineProps({
     default: "300px",
   }
 });
+
+/**
+ * requestNodeSelected notifies that a move node has been clicked.
+ * You give it an object with those params :
+ * @param nodeIndex: Number - index of node in history component
+ * @param fen: String - the requested position in Forsyhth-Edwards Notation
+ * @param fromFileIndex: Number - the start file index of matching move.
+ * @param fromRankIndex: Number - the start rank index of matching move.
+ * @param toFileIndex: Number - the end file index of matching move.
+ * @param toRankIndex: Number - the end rank index of matching move.
+ */
+const emit = defineEmits(['requestNodeSelected']);
 
 const nodes = ref([]);
 const root = ref();
@@ -27,14 +39,18 @@ function reset(startMoveNumber, startsAsWhite) {
 
 /**
  * Add a node to history. You give an object with
- * - number: String? (can be undefined) - the move number text
- * - fan: String? (can be undefined) - the move text without the number
- * - fen: String? (can be undefined) - the position value resulting from move in Forstyh-Edwards Notation
+ * @param number: String? (can be undefined) - the move number text
+ * @param fan: String? (can be undefined) - the move text without the number ands with chess symbols as Unicode
+ * @param fen: String? (can be undefined) - the position value resulting from move in Forstyh-Edwards Notation
+ * @param fromFileIndex: Number? (can be undefined) - the start file index of the move
+ * @param fromRankIndex: Number? (can be undefined) - the start rank index of the move
+ * @param toFileIndex: Number? (can be undefined) - the end file index of the move
+ * @param toRankIndex: Number? (can be undefined) - the end rank index of the move
  *  
  */
 function addNode(parameters) {
-  const  {number, fan, fen} = parameters;
-  nodes.value = [...nodes.value, {number, fan, fen}];
+  const  {number, fan, fen, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex} = parameters;
+  nodes.value = [...nodes.value, {number, fan, fen, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}];
 }
 
 /**
@@ -43,6 +59,20 @@ function addNode(parameters) {
 function scrollToLastElement() {
   const lastChild = root.value.lastElementChild;
   lastChild.scrollIntoView();
+}
+
+function handleClick(nodeIndex) {
+  const {fen, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex} = nodes.value[nodeIndex];
+  if (!fen) return;
+
+  emit('requestNodeSelected', {
+    nodeIndex,
+    fen,
+    fromFileIndex,
+    fromRankIndex,
+    toFileIndex,
+    toRankIndex,
+  });
 }
 
 defineExpose({
@@ -55,7 +85,7 @@ defineExpose({
 
 <template>
     <div class="root" ref="root">
-        <span v-for="(node, index) in nodes" :key="index">
+        <span v-for="(node, index) in nodes" :key="index" @click="() => handleClick(index)">
           {{ `${node.number  ?? ''}&nbsp;`}}{{ `${node.fan ?? ''}&nbsp;` }}
         </span>
     </div>
