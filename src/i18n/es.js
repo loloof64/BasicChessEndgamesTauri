@@ -10,7 +10,7 @@ export default {
                 'new-game': 'Nueva partida empezada.',
             },
             'buttons': {
-                'new-game': 'Nueva partida',
+                'new-game-tooltip': 'Nueva partida',
             },
         }
     },

@@ -6,7 +6,12 @@ Generate and endgame based on your criterions and train yourself against the com
 
 ### Vectors
 
+#### SVG Repo
+
 Image icon has been downloaded from [SVG Repo](https://www.svgrepo.com/) : https://www.svgrepo.com/svg/188982/knight-chess.
+
+Also downloaded :
+* start-line.svg comes from https://www.svgrepo.com/svg/304738/start-line
 
 ### Fonts
 

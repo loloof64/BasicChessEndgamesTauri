@@ -9,7 +9,7 @@ export default {
                 'fifty-moves': 'Draw by the 50 moves rule.',
                 'new-game': 'New game started.',
             },'buttons': {
-                'new-game': 'New game',
+                'new-game-tooltip': 'New game',
             },
         }
     },

@@ -126,7 +126,15 @@ function handleStartPositionRequested() {
 
 <template>
   <p>
-    <ui-button raised @click="startNewGame()">{{t('pages.game.buttons.new-game')}}</ui-button>
+    <ui-tooltip-anchor>
+      <ui-button
+        @click="startNewGame()"
+        data-tooltip-id="newGameButton"
+        raised
+      ><img src="@/assets/images/start-line.svg" class="btn-img" />
+      </ui-button>
+      <ui-tooltip id="newGameButton">{{t('pages.game.buttons.new-game-tooltip')}}</ui-tooltip>
+    </ui-tooltip-anchor>
   </p>
   <div id="mainZone">
     <loloof64-chessboard
@@ -161,5 +169,10 @@ function handleStartPositionRequested() {
   justify-content: space-evenly;
   align-items: center;
   margin-bottom: 50px;
+}
+
+.btn-img {
+  width: 30px;
+  height: 30px;
 }
 </style>
