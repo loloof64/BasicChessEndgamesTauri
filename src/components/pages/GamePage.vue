@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from '../../stores/game';
 import { promiseTimeout } from '@vueuse/core';
@@ -79,7 +79,7 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
     });
   }
 
-  await promiseTimeout(10);
+  await nextTick();
   history.value.scrollToLastElement();
 }
 
