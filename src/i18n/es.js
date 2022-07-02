@@ -8,12 +8,15 @@ export default {
                 'missing-material': 'Empate por falta de material.',
                 'fifty-moves': 'Empate por la regla de los 50 movimientos.',
                 'new-game': 'Nueva partida empezada.',
+                'game-stopped': 'Partida salida.',
             },
             'buttons': {
                 'new-game-tooltip': 'Nueva partida',
+                'stop-game-tooltip': 'Salir partida',
             },
             'dialogs': {
                 'new-game-confirmation': '¿ Quiere salir de esta partida y empezar una nueva ?',
+                'stop-game-confirmation': '¿ Quiere salir de esta partida ?',
             }
         }
     },

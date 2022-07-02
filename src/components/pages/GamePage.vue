@@ -29,6 +29,27 @@ function startNewGame() {
   });
 }
 
+function stopGame() {
+  const noGameStarted = gameStore.startPosition === EMPTY_FEN;
+  if (noGameStarted) return;
+
+  const gameStopped = ! board.value.gameIsInProgress();
+  if (gameStopped) return;
+
+  $confirm({message: t('pages.game.dialogs.stop-game-confirmation'),
+   acceptText: t('dialogs.ok'), cancelText: t('dialogs.cancel')}).then((result) => {
+    if (result) doStopGame();
+  });
+}
+
+async function doStopGame() {
+  await board.value.stop();
+  await promiseTimeout(10);
+  history.value.activateNavigationMode();
+  snackBarMessage.value = t('pages.game.status.game-stopped');
+  snackBarOpen.value = true;
+}
+
 function doStartNewGame() {
   gameStore.resetToDefaultGame();
   history.value.reset(gameStore.startMoveNumber, gameStore.startsAsWhite);
@@ -140,7 +161,7 @@ function handleStartPositionRequested() {
 </script>
 
 <template>
-  <p>
+  <div class="toolbar">
     <ui-tooltip-anchor>
       <ui-button
         @click="startNewGame()"
@@ -150,7 +171,16 @@ function handleStartPositionRequested() {
       </ui-button>
       <ui-tooltip id="newGameButton">{{t('pages.game.buttons.new-game-tooltip')}}</ui-tooltip>
     </ui-tooltip-anchor>
-  </p>
+    <ui-tooltip-anchor>
+      <ui-button
+        @click="stopGame()"
+        data-tooltip-id="stopGameButton"
+        raised
+      ><img src="@/assets/images/stop.svg" class="btn-img" />
+      </ui-button>
+      <ui-tooltip id="stopGameButton">{{t('pages.game.buttons.stop-game-tooltip')}}</ui-tooltip>
+    </ui-tooltip-anchor>
+  </div>
   <div id="mainZone">
     <loloof64-chessboard
     ref="board"
@@ -184,6 +214,17 @@ function handleStartPositionRequested() {
   justify-content: space-evenly;
   align-items: center;
   margin-bottom: 50px;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.toolbar .mdc-button {
+  margin: 10px;
 }
 
 .btn-img {
