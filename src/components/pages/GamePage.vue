@@ -17,6 +17,8 @@ const history = ref();
 const snackBarOpen = ref(false);
 const snackBarMessage = ref('');
 
+const boardReversed = ref(false);
+
 function startNewGame() {
   const noGameStarted = gameStore.startPosition === EMPTY_FEN;
   if (noGameStarted) {
@@ -158,6 +160,10 @@ function handleStartPositionRequested() {
     history.value.setSelectedNode(-1);
   }
 }
+
+function toggleBoardOrientation() {
+  boardReversed.value = ! boardReversed.value;
+}
 </script>
 
 <template>
@@ -180,11 +186,21 @@ function handleStartPositionRequested() {
       </ui-button>
       <ui-tooltip id="stopGameButton">{{t('pages.game.buttons.stop-game-tooltip')}}</ui-tooltip>
     </ui-tooltip-anchor>
+    <ui-tooltip-anchor>
+      <ui-button
+        @click="toggleBoardOrientation()"
+        data-tooltip-id="reverseBoardButton"
+        raised
+      ><img src="@/assets/images/reverse.svg" class="btn-img" />
+      </ui-button>
+      <ui-tooltip id="reverseBoardButton">{{t('pages.game.buttons.reverse-board-tooltip')}}</ui-tooltip>
+    </ui-tooltip-anchor>
   </div>
   <div id="mainZone">
     <loloof64-chessboard
     ref="board"
     :size="300"
+    :reversed="boardReversed"
     @checkmate="handleCheckmate"
     @stalemate="handleStalemate"
     @perpetual-draw="handleThreeFoldRepetition"

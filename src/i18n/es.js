@@ -13,6 +13,7 @@ export default {
             'buttons': {
                 'new-game-tooltip': 'Nueva partida',
                 'stop-game-tooltip': 'Salir partida',
+                'reverse-board-tooltip': 'Volcar el tablero de ajedrez',
             },
             'dialogs': {
                 'new-game-confirmation': '¿ Quiere salir de esta partida y empezar una nueva ?',

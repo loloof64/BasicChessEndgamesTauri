@@ -13,6 +13,7 @@ export default {
             'buttons': {
                 'new-game-tooltip': 'Nouvelle partie',
                 'stop-game-tooltip': 'Arrêter la partie',
+                'reverse-board-tooltip': 'Renverser l\'échiquier',
             },
             'dialogs': {
                 'new-game-confirmation': 'Souhaitez-vous arrêter la partie en cours et en démarrer une nouvelle ?',

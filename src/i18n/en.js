@@ -13,6 +13,7 @@ export default {
             'buttons': {
                 'new-game-tooltip': 'New game',
                 'stop-game-tooltip': 'Stop game',
+                'reverse-board-tooltip': 'Reverse board',
             },
             'dialogs': {
                 'new-game-confirmation': 'Do you want to stop current game and start a new one ?',
