@@ -82,23 +82,13 @@ function setSelectedNode(nodeIndex) {
 }
 
 /**
- * Selects the last node :
- * - scrolls to it
- * - highlights it
- */
-function selectLastElement() {
-  selectedNodeIndex.value = nodes.value.length - 1;
-  scrollToLastElement();
-}
-
-/**
  * Activates navigation mode :
  * - shows toolbar
  * - select last move
  */
 function activateNavigationMode() {
   navigationMode.value = true;
-  selectLastElement();
+  selectLastNode();
 }
 
 function handleClick(nodeIndex) {
@@ -227,7 +217,6 @@ defineExpose({
   addNode,
   setSelectedNode,
   scrollToLastElement,
-  selectLastElement,
   activateNavigationMode,
 });
 
