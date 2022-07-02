@@ -3,11 +3,14 @@ import { ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from '../../stores/game';
 import { promiseTimeout } from '@vueuse/core';
-
+import { useConfirm } from 'balm-ui';
+import { EMPTY_FEN } from '@/constants'
+ 
 import SimpleChessHistoryVue from '../elements/SimpleChessHistory.vue';
 
 const { t } = useI18n();
 
+const $confirm = useConfirm();
 const gameStore = useStore();
 const board = ref();
 const history = ref();
@@ -15,6 +18,18 @@ const snackBarOpen = ref(false);
 const snackBarMessage = ref('');
 
 function startNewGame() {
+  const noGameStarted = gameStore.startPosition === EMPTY_FEN;
+  if (noGameStarted) {
+    doStartNewGame();
+    return;
+  }
+  $confirm({message: t('pages.game.dialogs.new-game-confirmation'),
+   acceptText: t('dialogs.ok'), cancelText: t('dialogs.cancel')}).then((result) => {
+    if (result) doStartNewGame();
+  });
+}
+
+function doStartNewGame() {
   gameStore.resetToDefaultGame();
   history.value.reset(gameStore.startMoveNumber, gameStore.startsAsWhite);
   board.value.newGame(gameStore.startPosition);

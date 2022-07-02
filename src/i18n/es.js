@@ -12,6 +12,9 @@ export default {
             'buttons': {
                 'new-game-tooltip': 'Nueva partida',
             },
+            'dialogs': {
+                'new-game-confirmation': '¿ Quiere salir de esta partida y empezar una nueva ?',
+            }
         }
     },
     'dialogs': {

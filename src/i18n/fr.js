@@ -12,6 +12,9 @@ export default {
             'buttons': {
                 'new-game-tooltip': 'Nouvelle partie',
             },
+            'dialogs': {
+                'new-game-confirmation': 'Souhaitez-vous arrêter la partie en cours et en démarrer une nouvelle ?',
+            }
         }
     },
     'dialogs': {

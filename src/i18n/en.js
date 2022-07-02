@@ -8,9 +8,13 @@ export default {
                 'missing-material': 'Draw by missing material.',
                 'fifty-moves': 'Draw by the 50 moves rule.',
                 'new-game': 'New game started.',
-            },'buttons': {
+            },
+            'buttons': {
                 'new-game-tooltip': 'New game',
             },
+            'dialogs': {
+                'new-game-confirmation': 'Do you want to stop current game and start a new one ?',
+            }
         }
     },
     'dialogs': {
