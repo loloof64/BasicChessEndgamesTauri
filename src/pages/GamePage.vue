@@ -1,14 +1,17 @@
 <script setup>
 import { ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useStore } from '../../stores/game';
+import { useRouter } from 'vue-router';
+import { useStore } from '@/stores/game';
 import { promiseTimeout } from '@vueuse/core';
 import { useConfirm } from 'balm-ui';
 import { EMPTY_FEN } from '@/constants'
  
-import SimpleChessHistoryVue from '../elements/SimpleChessHistory.vue';
+import SimpleChessHistoryVue from '@/components/SimpleChessHistory.vue';
 
 const { t } = useI18n();
+
+const router = useRouter();
 
 const $confirm = useConfirm();
 const gameStore = useStore();
@@ -121,6 +124,10 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
   history.value.scrollToLastElement();
 }
 
+function goToSettingsPage() {
+  router.push({name: 'options'});
+}
+
 function handleHistoryNodeSelectionRequest({
     nodeIndex,
     fen,
@@ -168,6 +175,15 @@ function toggleBoardOrientation() {
 
 <template>
   <div class="toolbar">
+    <ui-tooltip-anchor>
+      <ui-button
+        @click="goToSettingsPage()"
+        data-tooltip-id="settingsPageButton"
+        raised
+      ><img src="@/assets/images/settings.svg" class="btn-img" />
+      </ui-button>
+      <ui-tooltip id="settingsPageButton">{{t('pages.game.buttons.options-page-tooltip')}}</ui-tooltip>
+    </ui-tooltip-anchor>
     <ui-tooltip-anchor>
       <ui-button
         @click="startNewGame()"

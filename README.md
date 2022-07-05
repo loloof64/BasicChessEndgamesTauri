@@ -14,6 +14,7 @@ Also downloaded :
 * start-line.svg comes from https://www.svgrepo.com/svg/304738/start-line
 * stop.svg comes from https://www.svgrepo.com/svg/206465/stop
 * reverse.svg comes from https://www.svgrepo.com/svg/215783/up-arrow-ui
+* settings.svg comes from https://www.svgrepo.com/svg/1897/settings
 
 ### Fonts
 

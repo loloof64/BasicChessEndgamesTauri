@@ -13,13 +13,15 @@ import BalmUI from 'balm-ui'; // Official Google Material Components
 import BalmUIPlus from 'balm-ui-plus'; // BalmJS Team Material Components
 import 'balm-ui-css';
 
-import GamePage from './components/pages/GamePage.vue';
+import GamePage from '@/pages/GamePage.vue';
+import OptionsPage from '@/pages/OptionsPage.vue';
 import ChessBoard from '@loloof64/chessboard-component/dist';
 
 import translations from './i18n';
 
 const routes = [
     { path: '/', name: 'game', component: GamePage },
+    { path: '/options', name: 'options', component: OptionsPage },
 ]
 
 const router = createRouter({

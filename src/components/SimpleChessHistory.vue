@@ -253,7 +253,7 @@ defineExpose({
 <style scoped>
 @font-face {
   font-family: "Free Serif";
-  src: url("../../assets/fonts/FreeSerif.ttf");
+  src: url("@/assets/fonts/FreeSerif.ttf");
 }
 
 .root {
