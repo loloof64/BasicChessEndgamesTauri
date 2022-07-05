@@ -1,7 +1,7 @@
 <script setup>
     import { ref } from 'vue';
     import { useI18n } from 'vue-i18n';
-    import { useStore } from '@/stores/game';
+    import { useStore } from '@/stores/options';
     import { useRouter } from 'vue-router';
     import { useConfirm, useAlert } from 'balm-ui';
     import { open } from '@tauri-apps/api/dialog';
