@@ -73,7 +73,7 @@ fn load_settings_from_file() -> Result<Settings, String> {
 
 fn save_settings_to_file(settings: &Settings) -> Result<(), String> {
     match settings_path() {
-        Ok(settings_path) => match serde_json::to_string(settings) {
+        Ok(settings_path) => match serde_json::to_string_pretty(settings) {
             Ok(content) => match fs::write(settings_path, content) {
                 Ok(()) => Ok(()),
                 Err(reason) => Err(format!(
@@ -89,7 +89,7 @@ fn save_settings_to_file(settings: &Settings) -> Result<(), String> {
 
 #[tauri::command]
 fn get_settings(settings: tauri::State<Mutex<Settings>>) -> Result<String, String> {
-    match serde_json::to_string(&settings.inner()) {
+    match serde_json::to_string_pretty(&settings.inner()) {
         Ok(content) => Ok(content),
         Err(reason) => Err(format!(
             "Failed to convert configuration values to string : {}",
