@@ -36,5 +36,6 @@ defineExpose({});
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
+  height: 100%;
 }
 </style>

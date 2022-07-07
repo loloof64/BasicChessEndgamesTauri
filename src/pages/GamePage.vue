@@ -174,6 +174,7 @@ function toggleBoardOrientation() {
 </script>
 
 <template>
+  <div id="root">
   <div class="toolbar">
     <ui-tooltip-anchor>
       <ui-button
@@ -237,15 +238,23 @@ function toggleBoardOrientation() {
     :message="snackBarMessage"
     :action-type="1"
   ></ui-snackbar>
+  </div>
 </template>
 
 <style scoped>
+#root {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: inherit;
+}
+
 #mainZone {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
-  margin-bottom: 50px;
+  padding: 10px 0;
 }
 
 .toolbar {
