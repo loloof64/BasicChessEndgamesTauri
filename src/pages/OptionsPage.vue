@@ -16,9 +16,29 @@
 
     const router = useRouter();
 
+    function setOptionsFromConfig(configObject) {
+        optionsStore.selectedEnginePath = configObject.engine_path;
+    }
+
+    function getConfigObjectFromOptions() {
+        return {
+            'engine_path': optionsStore.selectedEnginePath ?? '',
+        };
+    }
+
+    async function saveSettings() {
+        try {
+            const config = getConfigObjectFromOptions();
+            await invoke('save_settings', {settingsJson: JSON.stringify(config)})
+        }
+        catch (ex) {
+            console.error(ex);
+        }
+    }
+
     function commitChanges() {
         optionsStore.setSelectedEnginePath(enginePath.value);
-        //todo save store values to file
+        saveSettings();
     }
 
     function doValidate() {
@@ -72,6 +92,8 @@
             })
         }
     }
+
+    defineExpose({});
 </script>
 
 <template>

@@ -1,4 +1,24 @@
 <script setup>
+import { onMounted } from "vue";
+import { invoke } from "@tauri-apps/api";
+import { useStore } from "@/stores/options";
+
+const optionsStore = useStore();
+
+async function loadSettingsFromFile() {
+  try {
+    const settingsStr = await invoke("get_settings");
+    const settings = JSON.parse(settingsStr);
+
+    optionsStore.setSelectedEnginePath(settings.engine_path);
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
+onMounted(loadSettingsFromFile);
+
+defineExpose({});
 </script>
 
 <template>
