@@ -4,11 +4,11 @@ import { ref, computed } from 'vue';
 defineProps({
   width: {
     type: String,
-    default: "300px"
+    default: "300"
   },
   height: {
     type: String,
-    default: "300px",
+    default: "300",
   }
 });
 
@@ -260,8 +260,8 @@ defineExpose({
 }
 
 .root {
-  width: v-bind(width);
-  height: v-bind(height);
+  width: calc(v-bind(width) * 1px);
+  height: calc(v-bind(height)* 1px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

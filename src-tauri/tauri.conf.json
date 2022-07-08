@@ -56,10 +56,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
-        "resizable": true,
+        "height": 800,
+        "resizable": false,
         "title": "Basic chess endgames",
-        "width": 800
+        "width": 1200
       }
     ]
   }

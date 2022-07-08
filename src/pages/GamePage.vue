@@ -216,7 +216,7 @@ function toggleBoardOrientation() {
   <div id="mainZone">
     <loloof64-chessboard
     ref="board"
-    :size="300"
+    :size="500"
     :reversed="boardReversed"
     @checkmate="handleCheckmate"
     @stalemate="handleStalemate"
@@ -228,6 +228,8 @@ function toggleBoardOrientation() {
     </loloof64-chessboard>
     <simple-chess-history-vue
       ref="history"
+      :width="500"
+      :height="500"
       @requestNodeSelected="handleHistoryNodeSelectionRequest"
       @requestStartPosition="handleStartPositionRequested"
     />
