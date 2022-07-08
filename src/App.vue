@@ -26,6 +26,14 @@ defineExpose({});
 </template>
 
 <style>
+html, body {
+  height: calc(100% - 2px);
+}
+
+body {
+  margin: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -21,6 +21,9 @@ defineProps({
  * @param {Number} fromRankIndex - the start rank index of matching move.
  * @param {Number} toFileIndex - the end file index of matching move.
  * @param {Number} toRankIndex - the end rank index of matching move.
+ * 
+ * requestStartPosition notifies that we want to go in the start position of the game.
+ * Does not take any parameter.
  */
 const emit = defineEmits(['requestNodeSelected', 'requestStartPosition']);
 
