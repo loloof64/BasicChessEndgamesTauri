@@ -24,7 +24,7 @@ export default {
         'options' : {
             'fields': {
                 'engine-path-label': 'Chemin moteur d\'échecs UCI',
-                'engine-path-button': 'Select',
+                'engine-path-button': 'Choisir',
             },
             'dialogs': {
                 'validate-confirmation': 'Voulez-vous sauvegarder les paramètres et quitter ?',
