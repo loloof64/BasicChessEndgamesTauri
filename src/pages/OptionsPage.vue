@@ -124,7 +124,7 @@
 .field-line, .validation-line {
     display: flex;
     flex-direction: row;
-    justify-content: start;
+    justify-content: center;
     align-items: center;
     padding: 10px 20px;
 }
