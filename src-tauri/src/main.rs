@@ -142,7 +142,7 @@ fn read_from_engine_outputs(engine: tauri::State<Mutex<UciEngine>>) -> Result<Op
 #[tauri::command]
 fn send_command_to_engine(engine: tauri::State<Mutex<UciEngine>>, command: String) -> Result<(), String> {
     match  engine.lock() {
-        Ok(engine_locked) => {
+        Ok(mut engine_locked) => {
             engine_locked.send_command(command);
             Ok(())
         },
@@ -153,7 +153,7 @@ fn send_command_to_engine(engine: tauri::State<Mutex<UciEngine>>, command: Strin
 #[tauri::command]
 fn close_engine(engine: tauri::State<Mutex<UciEngine>>) -> Result<(), String> {
     match engine.lock() {
-        Ok(engine_locked) => {
+        Ok(mut engine_locked) => {
             engine_locked.close();
             Ok(())
         },

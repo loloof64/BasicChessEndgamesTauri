@@ -1,14 +1,14 @@
-use std::io::{BufRead, BufReader, BufWriter, Write};
-use std::process::{Command, Stdio};
+use std::io::{BufRead, BufReader, Write};
+use std::process::{ChildStdin, Command, Stdio};
 use std::{
-    sync::mpsc::{channel, Receiver, Sender},
+    sync::mpsc::{channel, Receiver},
     thread,
     time::Duration,
 };
 
 pub struct UciEngine {
     outputs_receiver: Option<Receiver<String>>,
-    inputs_sender: Option<Sender<String>>,
+    inputs_sender: Option<ChildStdin>,
 }
 
 impl UciEngine {
@@ -28,13 +28,10 @@ impl UciEngine {
         if let Ok(mut child) = child {
             if let Some(stdout) = child.stdout.take() {
                 if let Some(mut stdin) = child.stdin.take() {
-                    let _ = stdin.write_all(b"uci\n");
-
-                    let (sender_inputs, receiver_inputs) = channel::<String>();
                     let (sender_outputs, receiver_outputs) = channel::<String>();
 
                     self.outputs_receiver = Some(receiver_outputs);
-                    self.inputs_sender = Some(sender_inputs);
+                    self.inputs_sender = Some(stdin);
 
                     thread::spawn(move || {
                         let stdout_reader = BufReader::new(stdout);
@@ -46,16 +43,6 @@ impl UciEngine {
                                 let _ = sender_outputs.send(line_copy);
                             }
                         }
-                    });
-
-                    let mut stdin_writer = BufWriter::new(stdin);
-                    thread::spawn(move || loop {
-                        let command = receiver_inputs
-                            .recv()
-                            .expect("Failed to read input from UCI engine.");
-                        let final_command = format!("{}\n", command);
-                        let final_command_buffer = final_command.as_bytes();
-                        let _ = stdin_writer.write_all(final_command_buffer);
                     });
 
                     Ok(())
@@ -92,13 +79,13 @@ impl UciEngine {
         }
     }
 
-    pub fn send_command(&self, command: String) {
-        if let Some(inputs_sender) = &self.inputs_sender {
-            let _ = inputs_sender.send(format!("{}\n", command));
+    pub fn send_command(&mut self, command: String) {
+        if let Some(ref mut inputs) = &mut self.inputs_sender {
+            let _ = inputs.write_all(format!("{}\n", command).as_bytes());
         }
     }
 
-    pub fn close(&self) {
+    pub fn close(&mut self) {
         self.send_command("quit".to_string());
     }
 }

@@ -21,11 +21,33 @@ async function closeEngine() {
   }
 }
 
+function convertUciToObject(moveAsUci) {
+  const startFile = moveAsUci.charCodeAt(0) - 'a'.charCodeAt(0);
+  const endFile = moveAsUci.charCodeAt(2) - 'a'.charCodeAt(0);
+  const startRank = moveAsUci.charCodeAt(1) - '1'.charCodeAt(0);
+  const endRank = moveAsUci.charCodeAt(3) - '1'.charCodeAt(0);
+  const promotion = moveAsUci.length > 4 ? moveAsUci.charAt(4) : 'q';
+
+  const result = {
+    startFile,
+    startRank,
+    endFile,
+    endRank,
+    promotion
+  };
+
+  return result;
+}
+
 async function readOutputFromEngine() {
   try {
     let output = await invoke('read_from_engine_outputs');
     if (output == null) return;
-    console.log(output);
+    if (output.startsWith('bestmove')) {
+      const moveAsUci = output.split(' ')[1];
+      const moveData = convertUciToObject(moveAsUci);
+      board.value.playMove(moveData);
+    }
   } catch (ex) {
     console.error(ex);
   }
@@ -78,6 +100,11 @@ const snackBarMessage = ref('');
 
 const boardReversed = ref(false);
 
+async function makeComputerPlay() {
+  await invoke('send_command_to_engine', {command: `position fen ${board.value.getCurrentPosition()}`});
+  await invoke('send_command_to_engine', { command: 'go movetime 1000' });
+}
+
 function startNewGame() {
   const noGameStarted = gameStore.startPosition === EMPTY_FEN;
   if (noGameStarted) {
@@ -115,7 +142,7 @@ async function doStopGame() {
   snackBarOpen.value = true;
 }
 
-function doStartNewGame() {
+async function doStartNewGame() {
   gameStore.resetToDefaultGame();
   history.value.reset(gameStore.startMoveNumber, gameStore.startsAsWhite);
   board.value.newGame(gameStore.startPosition);
@@ -262,10 +289,14 @@ function toggleBoardOrientation() {
       </ui-tooltip-anchor>
     </div>
     <div id="mainZone">
-      <loloof64-chessboard ref="board" :size="500" :reversed="boardReversed" @checkmate="handleCheckmate"
+      <loloof64-chessboard ref="board"
+        :white_player_human="false" :black_player_human="false"
+       :size="500" :reversed="boardReversed" @checkmate="handleCheckmate"
         @stalemate="handleStalemate" @perpetual-draw="handleThreeFoldRepetition"
         @missing-material-draw="handleMissingMaterialDraw" @fifty-moves-draw="handleFiftyMovesDraw"
-        @move-done="handleMoveDone">
+        @move-done="handleMoveDone"
+        @waiting-manual-move="makeComputerPlay"
+        >
       </loloof64-chessboard>
       <simple-chess-history-vue ref="history" :width="500" :height="500"
         @requestNodeSelected="handleHistoryNodeSelectionRequest" @requestStartPosition="handleStartPositionRequested" />
