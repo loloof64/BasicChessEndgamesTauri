@@ -1,13 +1,69 @@
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useStore } from '@/stores/game';
 import { promiseTimeout } from '@vueuse/core';
 import { useConfirm } from 'balm-ui';
 import { EMPTY_FEN } from '@/constants'
- 
+
 import SimpleChessHistoryVue from '@/components/SimpleChessHistory.vue';
+import { invoke } from '@tauri-apps/api';
+
+const engineReaderHandle = ref();
+
+async function closeEngine() {
+  try {
+    await invoke('close_engine');
+  }
+  catch (ex) {
+    console.error(ex);
+  }
+}
+
+async function readOutputFromEngine() {
+  try {
+    let output = await invoke('read_from_engine_outputs');
+    if (output == null) return;
+    console.log(output);
+  } catch (ex) {
+    console.error(ex);
+  }
+}
+
+function setUpEngineReader() {
+  engineReaderHandle.value = setInterval(readOutputFromEngine, 800);
+}
+
+function clearEngineReader() {
+  clearInterval(engineReaderHandle.value);
+}
+
+async function launchEngineIfPossible() {
+  try {
+    await invoke('close_engine');
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  catch (ex) {
+    console.error(ex);
+  }
+
+  try {
+    let settings = await invoke('get_settings');
+    settings = JSON.parse(settings);
+    const enginePath = settings.engine_path;
+    await invoke('execute_engine', { engineAbsolutePath: enginePath });
+  }
+  catch (ex) {
+    console.error(ex);
+  }
+}
+
+onBeforeMount(setUpEngineReader);
+onBeforeMount(launchEngineIfPossible);
+
+onBeforeUnmount(closeEngine);
+onBeforeUnmount(clearEngineReader);
 
 const { t } = useI18n();
 
@@ -28,8 +84,10 @@ function startNewGame() {
     doStartNewGame();
     return;
   }
-  $confirm({message: t('pages.game.dialogs.new-game-confirmation'),
-   acceptText: t('dialogs.ok'), cancelText: t('dialogs.cancel')}).then((result) => {
+  $confirm({
+    message: t('pages.game.dialogs.new-game-confirmation'),
+    acceptText: t('dialogs.ok'), cancelText: t('dialogs.cancel')
+  }).then((result) => {
     if (result) doStartNewGame();
   });
 }
@@ -38,11 +96,13 @@ function stopGame() {
   const noGameStarted = gameStore.startPosition === EMPTY_FEN;
   if (noGameStarted) return;
 
-  const gameStopped = ! board.value.gameIsInProgress();
+  const gameStopped = !board.value.gameIsInProgress();
   if (gameStopped) return;
 
-  $confirm({message: t('pages.game.dialogs.stop-game-confirmation'),
-   acceptText: t('dialogs.ok'), cancelText: t('dialogs.cancel')}).then((result) => {
+  $confirm({
+    message: t('pages.game.dialogs.stop-game-confirmation'),
+    acceptText: t('dialogs.ok'), cancelText: t('dialogs.cancel')
+  }).then((result) => {
     if (result) doStopGame();
   });
 }
@@ -63,11 +123,11 @@ function doStartNewGame() {
   snackBarOpen.value = true;
 }
 
-async function handleCheckmate({detail: {whiteTurnBeforeMove}}) {
+async function handleCheckmate({ detail: { whiteTurnBeforeMove } }) {
   await promiseTimeout(10);
   const side = whiteTurnBeforeMove ? t('chess.white') : t('chess.black');
   history.value.activateNavigationMode();
-  let message = t('pages.game.status.checkmate', {side});
+  let message = t('pages.game.status.checkmate', { side });
   message = message.charAt(0).toUpperCase() + message.substring(1);
   snackBarMessage.value = message;
   snackBarOpen.value = true;
@@ -101,8 +161,8 @@ async function handleFiftyMovesDraw() {
   snackBarOpen.value = true;
 }
 
-async function handleMoveDone({detail: {moveObject: {moveNumber, whiteTurn, moveFan, 
-moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
+async function handleMoveDone({ detail: { moveObject: { moveNumber, whiteTurn, moveFan,
+  moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex } } }) {
   const positionFen = board.value.getCurrentPosition();
   history.value.addNode({
     fan: moveFan,
@@ -116,7 +176,7 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
   const gameInProgress = board.value.gameIsInProgress();
   if (blackTurn && gameInProgress) {
     history.value.addNode({
-      number: `${parseInt(moveNumber)+1}.`
+      number: `${parseInt(moveNumber) + 1}.`
     });
   }
 
@@ -125,16 +185,16 @@ moveSan, fromFileIndex, fromRankIndex, toFileIndex, toRankIndex}}}) {
 }
 
 function goToSettingsPage() {
-  router.push({name: 'options'});
+  router.push({ name: 'options' });
 }
 
 function handleHistoryNodeSelectionRequest({
-    nodeIndex,
-    fen,
-    fromFileIndex,
-    fromRankIndex,
-    toFileIndex,
-    toRankIndex,
+  nodeIndex,
+  fen,
+  fromFileIndex,
+  fromRankIndex,
+  toFileIndex,
+  toRankIndex,
 }) {
   const gameInProgress = board.value.gameIsInProgress();
   if (gameInProgress) return;
@@ -169,77 +229,48 @@ function handleStartPositionRequested() {
 }
 
 function toggleBoardOrientation() {
-  boardReversed.value = ! boardReversed.value;
+  boardReversed.value = !boardReversed.value;
 }
 </script>
 
 <template>
   <div id="root">
-  <div class="toolbar">
-    <ui-tooltip-anchor>
-      <ui-button
-        @click="goToSettingsPage()"
-        data-tooltip-id="settingsPageButton"
-        raised
-      ><img src="@/assets/images/settings.svg" class="btn-img" />
-      </ui-button>
-      <ui-tooltip id="settingsPageButton">{{t('pages.game.buttons.options-page-tooltip')}}</ui-tooltip>
-    </ui-tooltip-anchor>
-    <ui-tooltip-anchor>
-      <ui-button
-        @click="startNewGame()"
-        data-tooltip-id="newGameButton"
-        raised
-      ><img src="@/assets/images/start-line.svg" class="btn-img" />
-      </ui-button>
-      <ui-tooltip id="newGameButton">{{t('pages.game.buttons.new-game-tooltip')}}</ui-tooltip>
-    </ui-tooltip-anchor>
-    <ui-tooltip-anchor>
-      <ui-button
-        @click="stopGame()"
-        data-tooltip-id="stopGameButton"
-        raised
-      ><img src="@/assets/images/stop.svg" class="btn-img" />
-      </ui-button>
-      <ui-tooltip id="stopGameButton">{{t('pages.game.buttons.stop-game-tooltip')}}</ui-tooltip>
-    </ui-tooltip-anchor>
-    <ui-tooltip-anchor>
-      <ui-button
-        @click="toggleBoardOrientation()"
-        data-tooltip-id="reverseBoardButton"
-        raised
-      ><img src="@/assets/images/reverse.svg" class="btn-img" />
-      </ui-button>
-      <ui-tooltip id="reverseBoardButton">{{t('pages.game.buttons.reverse-board-tooltip')}}</ui-tooltip>
-    </ui-tooltip-anchor>
-  </div>
-  <div id="mainZone">
-    <loloof64-chessboard
-    ref="board"
-    :size="500"
-    :reversed="boardReversed"
-    @checkmate="handleCheckmate"
-    @stalemate="handleStalemate"
-    @perpetual-draw="handleThreeFoldRepetition"
-    @missing-material-draw="handleMissingMaterialDraw"
-    @fifty-moves-draw="handleFiftyMovesDraw"
-    @move-done="handleMoveDone"
-    >
-    </loloof64-chessboard>
-    <simple-chess-history-vue
-      ref="history"
-      :width="500"
-      :height="500"
-      @requestNodeSelected="handleHistoryNodeSelectionRequest"
-      @requestStartPosition="handleStartPositionRequested"
-    />
-  </div>
-  <ui-snackbar
-    v-model="snackBarOpen"
-    :timeout-ms="4000"
-    :message="snackBarMessage"
-    :action-type="1"
-  ></ui-snackbar>
+    <div class="toolbar">
+      <ui-tooltip-anchor>
+        <ui-button @click="goToSettingsPage()" data-tooltip-id="settingsPageButton" raised><img
+            src="@/assets/images/settings.svg" class="btn-img" />
+        </ui-button>
+        <ui-tooltip id="settingsPageButton">{{ t('pages.game.buttons.options-page-tooltip') }}</ui-tooltip>
+      </ui-tooltip-anchor>
+      <ui-tooltip-anchor>
+        <ui-button @click="startNewGame()" data-tooltip-id="newGameButton" raised><img
+            src="@/assets/images/start-line.svg" class="btn-img" />
+        </ui-button>
+        <ui-tooltip id="newGameButton">{{ t('pages.game.buttons.new-game-tooltip') }}</ui-tooltip>
+      </ui-tooltip-anchor>
+      <ui-tooltip-anchor>
+        <ui-button @click="stopGame()" data-tooltip-id="stopGameButton" raised><img src="@/assets/images/stop.svg"
+            class="btn-img" />
+        </ui-button>
+        <ui-tooltip id="stopGameButton">{{ t('pages.game.buttons.stop-game-tooltip') }}</ui-tooltip>
+      </ui-tooltip-anchor>
+      <ui-tooltip-anchor>
+        <ui-button @click="toggleBoardOrientation()" data-tooltip-id="reverseBoardButton" raised><img
+            src="@/assets/images/reverse.svg" class="btn-img" />
+        </ui-button>
+        <ui-tooltip id="reverseBoardButton">{{ t('pages.game.buttons.reverse-board-tooltip') }}</ui-tooltip>
+      </ui-tooltip-anchor>
+    </div>
+    <div id="mainZone">
+      <loloof64-chessboard ref="board" :size="500" :reversed="boardReversed" @checkmate="handleCheckmate"
+        @stalemate="handleStalemate" @perpetual-draw="handleThreeFoldRepetition"
+        @missing-material-draw="handleMissingMaterialDraw" @fifty-moves-draw="handleFiftyMovesDraw"
+        @move-done="handleMoveDone">
+      </loloof64-chessboard>
+      <simple-chess-history-vue ref="history" :width="500" :height="500"
+        @requestNodeSelected="handleHistoryNodeSelectionRequest" @requestStartPosition="handleStartPositionRequested" />
+    </div>
+    <ui-snackbar v-model="snackBarOpen" :timeout-ms="4000" :message="snackBarMessage" :action-type="1"></ui-snackbar>
   </div>
 </template>
 

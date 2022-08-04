@@ -3,15 +3,14 @@
     windows_subsystem = "windows"
 )]
 
-use std::io::{BufRead, BufReader, Write};
-use std::process::{Command, Stdio};
-use std::{thread, time};
-
+use engine_communication::UciEngine;
 use serde::{Deserialize, Serialize};
 
 use dirs::config_dir;
 use std::fs::{self, OpenOptions};
 use std::sync::Mutex;
+
+mod engine_communication;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 struct Settings {
@@ -119,65 +118,47 @@ fn save_settings(settings: tauri::State<Mutex<Settings>>, settings_json: String)
 
 #[tauri::command]
 fn check_uci_engine_path(absolute_path: String) -> Result<(), String> {
-    let path = absolute_path.clone();
-    let child = Command::new(path)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .spawn();
-    if let Ok(mut child) = child {
-        if let Some(stdout) = child.stdout.take() {
-            if let Some(mut stdin) = child.stdin.take() {
-                let _ = stdin.write_all(b"uci\n");
+    engine_communication::check_uci_engine_path(absolute_path)
+}
 
-                thread::spawn(move || {
-                    let delay = time::Duration::from_secs_f32(8.0);
-                    thread::sleep(delay);
-
-                    let _ = child.kill();
-                });
-
-                thread::spawn(move || {
-                    let stdout_reader = BufReader::new(stdout);
-                    let stdout_lines = stdout_reader.lines();
-
-                    for line in stdout_lines {
-                        if let Ok(line) = line {
-                            if line.trim().contains("uciok") {
-                                let _ = stdin.write_all(b"quit\n");
-
-                                let delay = time::Duration::from_millis(300);
-                                thread::sleep(delay);
-
-                                return Ok(());
-                            }
-                        }
-                    }
-
-                    Err(format!(
-                        "The selected program is not an UCI engine : {}",
-                        absolute_path
-                    ))
-                })
-                .join()
-                .expect("Failed to launch stdout reader thread.")
-            } else {
-                return Err(format!(
-                    "The selected program has no stdin : {}",
-                    absolute_path
-                ));
-            }
-        } else {
-            return Err(format!(
-                "The selected program has no stdout : {}",
-                absolute_path
-            ));
-        }
-    } else {
-        return Err(format!(
-            "The selected program is not a valid program or has too restricted access rights : {}",
-            absolute_path
-        ));
+#[tauri::command]
+fn execute_engine(engine: tauri::State<Mutex<UciEngine>>, engine_absolute_path: String) -> Result<(), String> {
+    match engine.lock() {
+        Ok(mut engine_locked) => engine_locked.execute(engine_absolute_path),
+        _ => Err("Failed to get lock from engine.".to_string())
     }
+}
+
+#[tauri::command]
+fn read_from_engine_outputs(engine: tauri::State<Mutex<UciEngine>>) -> Result<Option<String>, String> {
+    match engine.lock() {
+        Ok(engine_locked) => {
+            Ok(engine_locked.read_from_outputs())
+        }
+        _ => Err("Failed to get lock from engine.".to_string())
+    }
+}
+
+#[tauri::command]
+fn send_command_to_engine(engine: tauri::State<Mutex<UciEngine>>, command: String) -> Result<(), String> {
+    match  engine.lock() {
+        Ok(engine_locked) => {
+            engine_locked.send_command(command);
+            Ok(())
+        },
+        _ => Err("Failed to get lock from engine.".to_string())
+    }
+}
+
+#[tauri::command]
+fn close_engine(engine: tauri::State<Mutex<UciEngine>>) -> Result<(), String> {
+    match engine.lock() {
+        Ok(engine_locked) => {
+            engine_locked.close();
+            Ok(())
+        },
+        _ => Err("Failed to get lock from engine.".to_string())
+    } 
 }
 
 fn main() {
@@ -189,15 +170,22 @@ fn main() {
         }
     };
 
+    let engine = engine_communication::UciEngine::new();
+
     let context = tauri::generate_context!();
     tauri::Builder::default()
         .manage(Mutex::new(settings))
+        .manage(Mutex::new(engine))
         .invoke_handler(tauri::generate_handler![
             check_uci_engine_path,
+            execute_engine,
+            read_from_engine_outputs,
+            send_command_to_engine,
+            close_engine,
             get_settings,
             save_settings
         ])
         .menu(tauri::Menu::os_default(&context.package_info().name))
         .run(context)
-        .expect("error while running tauri application");
+        .expect("Error while running tauri application.");
 }

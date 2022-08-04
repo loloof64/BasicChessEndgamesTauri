@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
 import { invoke } from "@tauri-apps/api";
 import { useStore } from "@/stores/options";
 
@@ -16,7 +16,14 @@ async function loadSettingsFromFile() {
   }
 }
 
+async function closeEngine() {
+  await invoke("close_engine");
+  await new Promise(resolve => setTimeout(resolve, 700));
+}
+
 onMounted(loadSettingsFromFile);
+
+onBeforeUnmount(closeEngine);
 
 defineExpose({});
 </script>
